@@ -1,0 +1,103 @@
+# 🚀 LEIA-ME - Executável Mapa Municípios de Goiás
+
+## 📋 O que é este programa?
+
+Aplicação para visualizar e colorir municípios de Goiás em um mapa interativo com limites territoriais exatos do IBGE.
+
+## 🖥️ Como Usar
+
+### 1️⃣ Executar o Programa
+
+1. Clique duas vezes em **`MapaMunicipiosGoias.exe`**
+2. Uma janela preta (console) aparecerá
+3. **O navegador abrirá automaticamente** em alguns segundos
+4. Se não abrir, acesse manualmente: http://127.0.0.1:5000
+
+### 2️⃣ Usar a Aplicação
+
+1. **Selecione um município** da lista
+2. **Escolha uma cor** no seletor
+3. Clique em **"Adicionar Município"**
+4. Clique em **"Atualizar Mapa"** para visualizar
+5. Repita para adicionar mais municípios
+
+### 3️⃣ Fechar o Programa
+
+- Feche a janela do console (preta)
+- Ou pressione `Ctrl+C` no console
+
+## ⚙️ Requisitos
+
+- **Sistema Operacional**: Windows 7/8/10/11
+- **Internet**: Necessária para baixar polígonos (apenas na primeira vez)
+- **Espaço em Disco**: ~200 MB
+- **RAM**: 512 MB mínimo
+
+## 🌐 Navegadores Suportados
+
+- Google Chrome
+- Microsoft Edge
+- Mozilla Firefox
+- Opera
+- Qualquer navegador moderno
+
+## 📁 Arquivos Importantes
+
+```
+MapaMunicipiosGoias/
+├── MapaMunicipiosGoias.exe  ← Executável principal
+├── _internal/                ← Bibliotecas (NÃO DELETAR)
+├── templates/                ← Interface web
+├── cache_municipios/         ← Cache de mapas
+└── cidades_brasil.json       ← Dados das cidades
+```
+
+⚠️ **ATENÇÃO**: Não delete nenhuma pasta! O executável precisa de todos os arquivos.
+
+## 🔧 Problemas Comuns
+
+### O navegador não abre automaticamente
+**Solução**: Abra manualmente: http://127.0.0.1:5000
+
+### "Erro de porta em uso"
+**Solução**: Feche outros programas que usem a porta 5000
+
+### Antivírus bloqueou o executável
+**Solução**: Adicione exceção no antivírus (é um falso positivo)
+
+### Mapas não aparecem
+**Solução**: Verifique sua conexão com a internet (primeira execução)
+
+### Console fecha imediatamente
+**Solução**: Execute a partir do cmd/powershell para ver erros
+
+## 📞 Suporte
+
+Para problemas técnicos:
+1. Verifique se todos os arquivos estão presentes
+2. Tente executar como Administrador
+3. Verifique seu firewall/antivírus
+
+## 📊 Informações Técnicas
+
+- **Tecnologia**: Python + Flask + Folium
+- **Fonte de Dados**: IBGE API (Instituto Brasileiro de Geografia e Estatística)
+- **Municípios**: 50+ municípios de Goiás
+- **Cache Local**: Sim (polígonos são salvos localmente)
+
+## 🔒 Privacidade
+
+- ✅ Não coleta dados pessoais
+- ✅ Funciona 100% localmente
+- ✅ Não envia informações para servidores externos
+- ✅ Apenas baixa dados públicos do IBGE
+
+## 📝 Licença
+
+Dados geográficos: © IBGE - Domínio Público
+
+---
+
+**Versão**: 1.0  
+**Data**: Janeiro 2026  
+**Desenvolvido para facilitar a visualização de municípios de Goiás**

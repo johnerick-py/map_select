@@ -1,0 +1,36 @@
+# Ambientes virtuais Python
+venv/
+env/
+ENV/
+.venv
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# PyInstaller
+dist/
+build/
+*.exe
+*.zip
+
+# Cache de municípios
+cache_municipios/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Scripts auxiliares (opcionais)
+atualizar_coordenadas_github.py
+baixar_todos_poligonos.py

@@ -1,0 +1,387 @@
+{
+  "Goiânia": {
+    "lat": -16.6864,
+    "lon": -49.2643,
+    "estado": "GO",
+    "populacao": 1536097,
+    "codigo_ibge": "5208707"
+  },
+  "Aparecida de Goiânia": {
+    "lat": -16.8198,
+    "lon": -49.2469,
+    "estado": "GO",
+    "populacao": 542090,
+    "codigo_ibge": "5201405"
+  },
+  "Anápolis": {
+    "lat": -16.3281,
+    "lon": -48.953,
+    "estado": "GO",
+    "populacao": 391771,
+    "codigo_ibge": "5201108"
+  },
+  "Rio Verde": {
+    "lat": -17.7923,
+    "lon": -50.9192,
+    "estado": "GO",
+    "populacao": 235647,
+    "codigo_ibge": "5218805"
+  },
+  "Luziânia": {
+    "lat": -16.253,
+    "lon": -47.95,
+    "estado": "GO",
+    "populacao": 208000,
+    "codigo_ibge": "5212501"
+  },
+  "Águas Lindas de Goiás": {
+    "lat": -15.7617,
+    "lon": -48.2816,
+    "estado": "GO",
+    "populacao": 196000,
+    "codigo_ibge": "5200258"
+  },
+  "Valparaíso de Goiás": {
+    "lat": -16.0651,
+    "lon": -47.9757,
+    "estado": "GO",
+    "populacao": 172000,
+    "codigo_ibge": "5221858"
+  },
+  "Trindade": {
+    "lat": -16.3945,
+    "lon": -49.0797,
+    "estado": "GO",
+    "populacao": 132000,
+    "codigo_ibge": "5221197"
+  },
+  "Formosa": {
+    "lat": -15.54,
+    "lon": -47.337,
+    "estado": "GO",
+    "populacao": 113000,
+    "codigo_ibge": "5208004"
+  },
+  "Novo Gama": {
+    "lat": -15.1605,
+    "lon": -48.2833,
+    "estado": "GO",
+    "populacao": 110000,
+    "codigo_ibge": "5215603"
+  },
+  "Itumbiara": {
+    "lat": -18.4093,
+    "lon": -49.2158,
+    "estado": "GO",
+    "populacao": 103000,
+    "codigo_ibge": "5211503"
+  },
+  "Senador Canedo": {
+    "lat": -16.7084,
+    "lon": -49.0914,
+    "estado": "GO",
+    "populacao": 102000,
+    "codigo_ibge": "5220454"
+  },
+  "Catalão": {
+    "lat": -18.1656,
+    "lon": -47.944,
+    "estado": "GO",
+    "populacao": 102000,
+    "codigo_ibge": "5205109"
+  },
+  "Jataí": {
+    "lat": -17.8784,
+    "lon": -51.7204,
+    "estado": "GO",
+    "populacao": 100000,
+    "codigo_ibge": "5211909"
+  },
+  "Planaltina": {
+    "lat": -15.8507,
+    "lon": -48.9584,
+    "estado": "GO",
+    "populacao": 89000,
+    "codigo_ibge": "5217302"
+  },
+  "Caldas Novas": {
+    "lat": -13.035,
+    "lon": -46.7681,
+    "estado": "GO",
+    "populacao": 87000,
+    "codigo_ibge": "5204904"
+  },
+  "Santo Antônio do Descoberto": {
+    "lat": -17.5585,
+    "lon": -50.6345,
+    "estado": "GO",
+    "populacao": 70000,
+    "codigo_ibge": "5219712"
+  },
+  "Goianésia": {
+    "lat": -15.9333,
+    "lon": -50.14,
+    "estado": "GO",
+    "populacao": 68000,
+    "codigo_ibge": "5208905"
+  },
+  "Cidade Ocidental": {
+    "lat": -16.0765,
+    "lon": -47.9252,
+    "estado": "GO",
+    "populacao": 67000,
+    "codigo_ibge": "5205497"
+  },
+  "Inhumas": {
+    "lat": -17.7215,
+    "lon": -48.1581,
+    "estado": "GO",
+    "populacao": 52000,
+    "codigo_ibge": "5210109"
+  },
+  "Morrinhos": {
+    "lat": -17.4439,
+    "lon": -51.1728,
+    "estado": "GO",
+    "populacao": 46000,
+    "codigo_ibge": "5213756"
+  },
+  "Cristalina": {
+    "lat": -16.7676,
+    "lon": -47.6131,
+    "estado": "GO",
+    "populacao": 52000,
+    "codigo_ibge": "5206206"
+  },
+  "Quirinópolis": {
+    "lat": -17.2497,
+    "lon": -49.244,
+    "estado": "GO",
+    "populacao": 48000,
+    "codigo_ibge": "5218391"
+  },
+  "Mineiros": {
+    "lat": -17.5654,
+    "lon": -52.5537,
+    "estado": "GO",
+    "populacao": 61000,
+    "codigo_ibge": "5213103"
+  },
+  "Porangatu": {
+    "lat": -13.4391,
+    "lon": -49.1503,
+    "estado": "GO",
+    "populacao": 44000,
+    "codigo_ibge": "5218003"
+  },
+  "Goiás": {
+    "lat": -16.4947,
+    "lon": -49.427,
+    "estado": "GO",
+    "populacao": 25000,
+    "codigo_ibge": "5208806"
+  },
+  "Jaraguá": {
+    "lat": -15.7529,
+    "lon": -49.3344,
+    "estado": "GO",
+    "populacao": 48000,
+    "codigo_ibge": "5211800"
+  },
+  "Piracanjuba": {
+    "lat": -17.302,
+    "lon": -49.017,
+    "estado": "GO",
+    "populacao": 26000,
+    "codigo_ibge": "5217104"
+  },
+  "Ipameri": {
+    "lat": -16.0206,
+    "lon": -49.806,
+    "estado": "GO",
+    "populacao": 27000,
+    "codigo_ibge": "5210406"
+  },
+  "Iporá": {
+    "lat": -19.0673,
+    "lon": -51.5495,
+    "estado": "GO",
+    "populacao": 32000,
+    "codigo_ibge": "5210802"
+  },
+  "Uruaçu": {
+    "lat": -14.2835,
+    "lon": -49.9201,
+    "estado": "GO",
+    "populacao": 39000,
+    "codigo_ibge": "5221577"
+  },
+  "Itaberaí": {
+    "lat": -16.0186,
+    "lon": -49.8097,
+    "estado": "GO",
+    "populacao": 39000,
+    "codigo_ibge": "5210703"
+  },
+  "Bela Vista de Goiás": {
+    "lat": -14.9658,
+    "lon": -48.9086,
+    "estado": "GO",
+    "populacao": 29000,
+    "codigo_ibge": "5203203"
+  },
+  "Alexânia": {
+    "lat": -14.1978,
+    "lon": -49.3378,
+    "estado": "GO",
+    "populacao": 26000,
+    "codigo_ibge": "5200555"
+  },
+  "Pontalina": {
+    "lat": -15.452,
+    "lon": -47.6089,
+    "estado": "GO",
+    "populacao": 19000,
+    "codigo_ibge": "5217609"
+  },
+  "Ceres": {
+    "lat": -13.7976,
+    "lon": -47.4566,
+    "estado": "GO",
+    "populacao": 23000,
+    "codigo_ibge": "5205307"
+  },
+  "Hidrolândia": {
+    "lat": -14.1011,
+    "lon": -46.6335,
+    "estado": "GO",
+    "populacao": 20000,
+    "codigo_ibge": "5209903"
+  },
+  "Nerópolis": {
+    "lat": -14.4662,
+    "lon": -48.4599,
+    "estado": "GO",
+    "populacao": 27000,
+    "codigo_ibge": "5214606"
+  },
+  "Crixás": {
+    "lat": -17.1987,
+    "lon": -48.7034,
+    "estado": "GO",
+    "populacao": 16000,
+    "codigo_ibge": "5206305"
+  },
+  "Palmeiras de Goiás": {
+    "lat": -17.3258,
+    "lon": -48.426,
+    "estado": "GO",
+    "populacao": 24000,
+    "codigo_ibge": "5215801"
+  },
+  "Silvânia": {
+    "lat": -14.4644,
+    "lon": -46.4847,
+    "estado": "GO",
+    "populacao": 20000,
+    "codigo_ibge": "5220686"
+  },
+  "São Luís de Montes Belos": {
+    "lat": -14.7048,
+    "lon": -47.5228,
+    "estado": "GO",
+    "populacao": 32000,
+    "codigo_ibge": "5220009"
+  },
+  "Santa Helena de Goiás": {
+    "lat": -16.197,
+    "lon": -50.3124,
+    "estado": "GO",
+    "populacao": 39000,
+    "codigo_ibge": "5219001"
+  },
+  "Goiatuba": {
+    "lat": -15.3118,
+    "lon": -49.1162,
+    "estado": "GO",
+    "populacao": 34000,
+    "codigo_ibge": "5208608"
+  },
+  "Itapuranga": {
+    "lat": -15.5606,
+    "lon": -49.949,
+    "estado": "GO",
+    "populacao": 27000,
+    "codigo_ibge": "5211206"
+  },
+  "Pires do Rio": {
+    "lat": -17.3,
+    "lon": -48.2789,
+    "estado": "GO",
+    "populacao": 30000,
+    "codigo_ibge": "5217007"
+  },
+  "Campos Belos": {
+    "lat": -13.035,
+    "lon": -46.7681,
+    "estado": "GO",
+    "populacao": 20000,
+    "codigo_ibge": "5204904"
+  },
+  "Vianópolis": {
+    "lat": -17.0471,
+    "lon": -49.6312,
+    "estado": "GO",
+    "populacao": 13000,
+    "codigo_ibge": "5221908"
+  },
+  "Minaçu": {
+    "lat": -14.0148,
+    "lon": -49.1777,
+    "estado": "GO",
+    "populacao": 32000,
+    "codigo_ibge": "5212808"
+  },
+  "Pirenópolis": {
+    "lat": -16.0968,
+    "lon": -49.3364,
+    "estado": "GO",
+    "populacao": 24000,
+    "codigo_ibge": "5216809"
+  },
+  "Buriti Alegre": {
+    "lat": -18.5594,
+    "lon": -51.1328,
+    "estado": "GO",
+    "populacao": 10000,
+    "codigo_ibge": "5204300"
+  },
+  "Mozarlândia": {
+    "lat": -17.4439,
+    "lon": -51.1728,
+    "estado": "GO",
+    "populacao": 14000,
+    "codigo_ibge": "5213756"
+  },
+  "Paraúna": {
+    "lat": -18.1783,
+    "lon": -49.355,
+    "estado": "GO",
+    "populacao": 11000,
+    "codigo_ibge": "5216007"
+  },
+  "Orizona": {
+    "lat": -18.2277,
+    "lon": -47.8355,
+    "estado": "GO",
+    "populacao": 15000,
+    "codigo_ibge": "5215504"
+  },
+  "Edéia": {
+    "lat": -16.2329,
+    "lon": -51.2543,
+    "estado": "GO",
+    "populacao": 12000,
+    "codigo_ibge": "5207105"
+  }
+}

@@ -1,0 +1,9 @@
+flask==3.0.0
+folium==0.15.1
+
+# Apenas para gerar executável (opcional)
+# pyinstaller==6.3.0
+
+
+
+
