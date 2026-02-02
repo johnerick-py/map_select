@@ -6,6 +6,9 @@ import glob
 import webbrowser
 import threading
 import geopandas as gpd
+import pandas as pd
+import re
+from unicodedata import normalize
 
 app = Flask(__name__)
 
@@ -360,6 +363,156 @@ def gerar_mapa():
 @app.route('/get_cidades_selecionadas')
 def get_cidades_selecionadas():
     return jsonify(cidades_selecionadas)
+
+def normalizar_nome_municipio(nome):
+    """
+    Normaliza o nome do município para comparação com o shapefile.
+    Remove acentos, converte para maiúsculas e remove espaços extras.
+    """
+    # Remove acentos
+    nome = normalize('NFKD', nome).encode('ASCII', 'ignore').decode('ASCII')
+    # Converte para maiúsculas e remove espaços extras
+    nome = nome.upper().strip()
+    # Remove caracteres especiais exceto espaços
+    nome = re.sub(r'[^A-Z\s]', '', nome)
+    # Remove espaços duplos
+    nome = ' '.join(nome.split())
+    return nome
+
+def converter_cor_para_hex(cor):
+    """
+    Converte cor de diferentes formatos para hexadecimal.
+    Aceita: #RRGGBB, rgb(r;g;b), rgb(r,g,b), r;g;b
+    """
+    cor = cor.strip()
+    
+    # Já está em formato hex
+    if cor.startswith('#'):
+        if len(cor) == 7 and all(c in '0123456789ABCDEFabcdef' for c in cor[1:]):
+            return cor.upper()
+        else:
+            return None
+    
+    # Formato rgb(r;g;b) ou rgb(r,g,b)
+    if cor.startswith('rgb(') and cor.endswith(')'):
+        cor = cor[4:-1]
+    
+    # Tenta separar por ponto e vírgula primeiro, depois por vírgula
+    separador = ';' if ';' in cor else ','
+    partes = [p.strip() for p in cor.split(separador)]
+    
+    if len(partes) == 3:
+        try:
+            r, g, b = [int(p) for p in partes]
+            if all(0 <= v <= 255 for v in [r, g, b]):
+                return f'#{r:02X}{g:02X}{b:02X}'
+        except ValueError:
+            return None
+    
+    return None
+
+@app.route('/upload_csv', methods=['POST'])
+def upload_csv():
+    """
+    Processa upload de CSV com municípios e cores.
+    Formato esperado: cidade,cor
+    """
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'message': 'Nenhum arquivo enviado'}), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'Nenhum arquivo selecionado'}), 400
+        
+        if not file.filename.endswith('.csv'):
+            return jsonify({'success': False, 'message': 'Arquivo deve ser .csv'}), 400
+        
+        # Lê o CSV
+        try:
+            df = pd.read_csv(file, encoding='utf-8')
+        except:
+            try:
+                df = pd.read_csv(file, encoding='latin-1')
+            except Exception as e:
+                return jsonify({'success': False, 'message': f'Erro ao ler CSV: {str(e)}'}), 400
+        
+        # Verifica se tem pelo menos 2 colunas
+        if len(df.columns) < 2:
+            return jsonify({'success': False, 'message': 'CSV deve ter pelo menos 2 colunas (cidade e cor)'}), 400
+        
+        # Pega as duas primeiras colunas
+        coluna_cidade = df.columns[0]
+        coluna_cor = df.columns[1]
+        
+        print(f"📁 Processando CSV: {len(df)} linhas")
+        print(f"   Colunas: {coluna_cidade} | {coluna_cor}")
+        
+        adicionados = 0
+        erros = []
+        
+        for idx, row in df.iterrows():
+            try:
+                cidade_original = str(row[coluna_cidade]).strip()
+                cor_original = str(row[coluna_cor]).strip()
+                
+                # Normaliza o nome do município
+                cidade_normalizada = normalizar_nome_municipio(cidade_original)
+                
+                # Busca o município no shapefile
+                municipio_encontrado = None
+                for nome_shp in MUNICIPIOS_GOIAS.keys():
+                    if normalizar_nome_municipio(nome_shp) == cidade_normalizada:
+                        municipio_encontrado = nome_shp
+                        break
+                
+                if not municipio_encontrado:
+                    erros.append({
+                        'linha': idx + 2,  # +2 porque +1 do índice 0 e +1 do header
+                        'cidade': cidade_original,
+                        'erro': 'Município não encontrado no shapefile'
+                    })
+                    continue
+                
+                # Converte a cor para hexadecimal
+                cor_hex = converter_cor_para_hex(cor_original)
+                
+                if not cor_hex:
+                    erros.append({
+                        'linha': idx + 2,
+                        'cidade': cidade_original,
+                        'erro': f'Cor inválida: {cor_original}'
+                    })
+                    continue
+                
+                # Adiciona à lista de cidades selecionadas
+                cidades_selecionadas[municipio_encontrado] = cor_hex
+                adicionados += 1
+                
+                print(f"   ✅ {cidade_original} → {municipio_encontrado} ({cor_hex})")
+                
+            except Exception as e:
+                erros.append({
+                    'linha': idx + 2,
+                    'cidade': str(row[coluna_cidade]) if coluna_cidade in row else 'N/A',
+                    'erro': str(e)
+                })
+        
+        mensagem = f'{adicionados} municípios importados com sucesso'
+        if erros:
+            mensagem += f' ({len(erros)} erros)'
+        
+        return jsonify({
+            'success': True,
+            'message': mensagem,
+            'adicionados': adicionados,
+            'erros': erros
+        })
+        
+    except Exception as e:
+        print(f"❌ Erro no upload: {str(e)}")
+        return jsonify({'success': False, 'message': f'Erro ao processar arquivo: {str(e)}'}), 500
 
 def abrir_navegador():
     """Abre o navegador automaticamente após iniciar o servidor"""

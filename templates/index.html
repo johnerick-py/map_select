@@ -243,7 +243,21 @@
                 <div class="alert alert-error" id="alert-error"></div>
                 
                 <div class="section">
-                    <h2>📍 Adicionar Município</h2>
+                    <h2>� Importar CSV</h2>
+                    <div class="form-group">
+                        <label for="csv-upload">Selecione arquivo CSV:</label>
+                        <input type="file" id="csv-upload" accept=".csv" style="width: 100%; padding: 8px; border: 2px dashed #667eea; border-radius: 5px; cursor: pointer;">
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Formato: cidade,cor (exemplo: GOIANIA,#FF0000 ou ANAPOLIS,rgb(255,0,0))
+                        </small>
+                    </div>
+                    <button class="btn btn-primary" onclick="importarCSV()">
+                        📥 Importar e Gerar Mapa
+                    </button>
+                </div>
+                
+                <div class="section">
+                    <h2>📍 Adicionar Município Manual</h2>
                     <div class="form-group">
                         <label for="cidade-select">Selecione o Município:</label>
                         <select id="cidade-select">
@@ -474,6 +488,57 @@
                 mostrarAlerta('Mapa atualizado com sucesso!', 'success');
             } catch (error) {
                 mostrarAlerta('Erro ao gerar mapa!', 'error');
+            }
+        }
+        
+        async function importarCSV() {
+            const fileInput = document.getElementById('csv-upload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                mostrarAlerta('Por favor, selecione um arquivo CSV!', 'error');
+                return;
+            }
+            
+            if (!file.name.endsWith('.csv')) {
+                mostrarAlerta('Por favor, selecione um arquivo CSV válido!', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                mostrarAlerta('Importando CSV...', 'success');
+                
+                const response = await fetch('/upload_csv', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let mensagem = `✅ ${data.adicionados} municípios importados`;
+                    if (data.erros && data.erros.length > 0) {
+                        mensagem += `\n⚠️ ${data.erros.length} erros encontrados`;
+                    }
+                    mostrarAlerta(mensagem, 'success');
+                    
+                    // Mostrar detalhes dos erros no console
+                    if (data.erros && data.erros.length > 0) {
+                        console.log('Erros de importação:', data.erros);
+                    }
+                    
+                    await carregarCidadesSelecionadas();
+                    await atualizarMapa();
+                    fileInput.value = '';
+                } else {
+                    mostrarAlerta(data.message || 'Erro ao importar CSV!', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarAlerta('Erro ao processar arquivo CSV!', 'error');
             }
         }
         
