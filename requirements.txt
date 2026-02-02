@@ -1,5 +1,7 @@
 flask==3.0.0
 folium==0.15.1
+geopandas==0.14.2
+fiona==1.9.6
 
 # Apenas para gerar executável (opcional)
 # pyinstaller==6.3.0

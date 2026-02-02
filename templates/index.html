@@ -280,6 +280,16 @@
                 </div>
                 
                 <div class="section">
+                    <h2>⚙️ Opções de Visualização</h2>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="mostrar-pins" checked style="width: 20px; height: 20px; cursor: pointer;">
+                            <span>Mostrar marcadores (pins)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="section">
                     <button class="btn btn-secondary" onclick="atualizarMapa()">
                         🔄 Atualizar Mapa
                     </button>
@@ -456,7 +466,8 @@
         
         async function atualizarMapa() {
             try {
-                const response = await fetch('/gerar_mapa');
+                const mostrarPins = document.getElementById('mostrar-pins').checked;
+                const response = await fetch(`/gerar_mapa?mostrar_pins=${mostrarPins}`);
                 const mapaHtml = await response.text();
                 
                 document.getElementById('mapa').innerHTML = mapaHtml;

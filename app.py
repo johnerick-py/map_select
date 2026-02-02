@@ -5,6 +5,7 @@ import os
 import glob
 import webbrowser
 import threading
+import geopandas as gpd
 
 app = Flask(__name__)
 
@@ -17,117 +18,104 @@ def carregar_cidades():
 CIDADES_BRASIL = carregar_cidades()
 
 # Diretórios
-KML_DIR = os.path.join(os.path.dirname(__file__), 'goias_kml')
+SHAPEFILE_PATH = os.path.join(os.path.dirname(__file__), 'GO_Municipios_2023', 'GO_Municipios_2023.shp')
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'cache_municipios')
 
 # Cria o diretório de cache se não existir
 if not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
 
+# Carrega o shapefile de Goiás
+print("📍 Carregando shapefile de Goiás...")
+try:
+    # Força a leitura sem usar fiona.path
+    import warnings
+    warnings.filterwarnings('ignore')
+    gdf_goias = gpd.read_file(SHAPEFILE_PATH, encoding='utf-8')
+    print(f"✅ Shapefile carregado com {len(gdf_goias)} municípios")
+    print(f"📋 Colunas disponíveis: {list(gdf_goias.columns)}")
+except Exception as e:
+    print(f"❌ Erro ao carregar shapefile: {e}")
+    # Tenta novamente sem especificar encoding
+    try:
+        gdf_goias = gpd.read_file(SHAPEFILE_PATH)
+        print(f"✅ Shapefile carregado com {len(gdf_goias)} municípios")
+        print(f"📋 Colunas disponíveis: {list(gdf_goias.columns)}")
+    except Exception as e2:
+        print(f"❌ Erro crítico ao carregar shapefile: {e2}")
+        gdf_goias = None
+
+# Gera lista de municípios do shapefile
+def gerar_lista_municipios():
+    """
+    Gera uma lista de municípios a partir do shapefile e do JSON.
+    Combina dados do shapefile (todos os 246 municípios) com dados do JSON (população).
+    """
+    municipios = {}
+    
+    if gdf_goias is not None:
+        # Adiciona todos os municípios do shapefile
+        for idx, row in gdf_goias.iterrows():
+            nome = row['NM_MUN']
+            codigo = row['CD_MUN']
+            
+            # Busca dados adicionais do JSON se existir
+            if nome in CIDADES_BRASIL:
+                municipios[nome] = {
+                    'codigo_ibge': str(codigo),
+                    'lat': CIDADES_BRASIL[nome].get('lat', 0),
+                    'lon': CIDADES_BRASIL[nome].get('lon', 0),
+                    'populacao': CIDADES_BRASIL[nome].get('populacao', 0),
+                    'estado': 'GO'
+                }
+            else:
+                # Município não está no JSON, adiciona sem população
+                municipios[nome] = {
+                    'codigo_ibge': str(codigo),
+                    'lat': 0,
+                    'lon': 0,
+                    'populacao': 0,
+                    'estado': 'GO'
+                }
+        
+        print(f"✅ Lista de municípios gerada: {len(municipios)} municípios")
+    else:
+        # Fallback para o JSON se o shapefile não carregar
+        print(f"⚠️ Usando apenas dados do JSON")
+        municipios = CIDADES_BRASIL
+    
+    return municipios
+
+# Gera a lista completa de municípios
+MUNICIPIOS_GOIAS = gerar_lista_municipios()
+
 # Cache para armazenar polígonos dos municípios
 cache_poligonos = {}
 
-def encontrar_kml_municipio(nome_municipio):
+def normalizar_nome(nome):
     """
-    Encontra o arquivo KML correspondente ao município.
+    Normaliza o nome do município para comparação.
     """
-    # Normaliza o nome do município para busca
-    nome_normalizado = nome_municipio.lower()
+    nome_normalizado = nome.lower()
     nome_normalizado = nome_normalizado.replace('á', 'a').replace('â', 'a').replace('ã', 'a')
     nome_normalizado = nome_normalizado.replace('é', 'e').replace('ê', 'e')
     nome_normalizado = nome_normalizado.replace('í', 'i')
     nome_normalizado = nome_normalizado.replace('ó', 'o').replace('ô', 'o').replace('õ', 'o')
     nome_normalizado = nome_normalizado.replace('ú', 'u').replace('ü', 'u')
     nome_normalizado = nome_normalizado.replace('ç', 'c')
-    nome_normalizado = nome_normalizado.replace(' ', '_')
-    nome_normalizado = nome_normalizado.replace('-', '_')
-    
-    # Busca por arquivos KML que contenham o nome
-    pattern = os.path.join(KML_DIR, f"*{nome_normalizado}*.kml")
-    arquivos = glob.glob(pattern)
-    
-    if arquivos:
-        return arquivos[0]
-    
-    # Tenta busca mais flexível
-    for arquivo in glob.glob(os.path.join(KML_DIR, "*.kml")):
-        nome_arquivo = os.path.basename(arquivo).lower()
-        if nome_normalizado in nome_arquivo:
-            return arquivo
-    
-    return None
-
-def kml_para_geojson(kml_path):
-    """
-    Converte arquivo KML para GeoJSON extraindo coordenadas dos polígonos.
-    """
-    try:
-        with open(kml_path, 'r', encoding='utf-8') as f:
-            conteudo = f.read()
-        
-        # Extrai coordenadas usando parsing simples
-        import re
-        
-        # Busca por tags <coordinates>
-        coord_pattern = r'<coordinates>(.*?)</coordinates>'
-        matches = re.findall(coord_pattern, conteudo, re.DOTALL)
-        
-        features = []
-        for match in matches:
-            coords_text = match.strip()
-            coords_list = []
-            
-            # Parse das coordenadas (formato: lon,lat,alt lon,lat,alt ...)
-            for linha in coords_text.split():
-                linha = linha.strip()
-                if not linha:
-                    continue
-                
-                partes = linha.split(',')
-                if len(partes) >= 2:
-                    try:
-                        lon = float(partes[0])
-                        lat = float(partes[1])
-                        coords_list.append([lon, lat])
-                    except ValueError:
-                        continue
-            
-            if coords_list and len(coords_list) > 2:  # Precisa de pelo menos 3 pontos para um polígono
-                feature = {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [coords_list]
-                    },
-                    "properties": {}
-                }
-                features.append(feature)
-        
-        if features:
-            geojson = {
-                "type": "FeatureCollection",
-                "features": features
-            }
-            return geojson
-        
-        return None
-        
-    except Exception as e:
-        print(f"❌ Erro ao converter KML: {str(e)}")
-        return None
+    return nome_normalizado
 
 def obter_poligono_municipio(codigo_ibge, nome_municipio):
     """
-    Obtém o polígono geográfico do município a partir dos arquivos KML locais.
-    Os dados são armazenados em cache para melhor performance.
-    """
-def obter_poligono_municipio(codigo_ibge, nome_municipio):
-    """
-    Obtém o polígono geográfico do município a partir dos arquivos KML locais.
+    Obtém o polígono geográfico do município a partir do shapefile.
     Os dados são armazenados em cache para melhor performance.
     """
     if not nome_municipio:
         print(f"❌ ERRO: Nome do município não fornecido!")
+        return None
+    
+    if gdf_goias is None:
+        print(f"❌ ERRO: Shapefile não carregado!")
         return None
     
     # Verifica se já está no cache em memória
@@ -135,53 +123,54 @@ def obter_poligono_municipio(codigo_ibge, nome_municipio):
         print(f"✅ Cache (memória): {nome_municipio}")
         return cache_poligonos[nome_municipio]
     
-    # Verifica se existe cache em disco (GeoJSON convertido)
-    cache_file = os.path.join(CACHE_DIR, f"{nome_municipio.replace(' ', '_')}.json")
-    if os.path.exists(cache_file):
-        try:
-            with open(cache_file, 'r', encoding='utf-8') as f:
-                geojson = json.load(f)
-                
-                # Valida se o GeoJSON tem dados
-                if geojson and 'features' in geojson and geojson['features']:
-                    cache_poligonos[nome_municipio] = geojson
-                    print(f"✅ Cache (disco): {nome_municipio}")
-                    return geojson
-                else:
-                    print(f"⚠️ Cache inválido para {nome_municipio}, reprocessando...")
-                    os.remove(cache_file)
-        except Exception as e:
-            print(f"⚠️ Erro ao ler cache de {nome_municipio}: {str(e)}")
-            if os.path.exists(cache_file):
-                os.remove(cache_file)
+    # Busca o município no shapefile
+    print(f"🔍 Buscando no shapefile: {nome_municipio}...")
     
-    # Busca o arquivo KML local
-    print(f"🔍 Buscando KML local: {nome_municipio}...")
-    kml_path = encontrar_kml_municipio(nome_municipio)
+    # Normaliza o nome para busca
+    nome_normalizado = normalizar_nome(nome_municipio)
     
-    if not kml_path:
-        print(f"❌ ERRO: Arquivo KML não encontrado para {nome_municipio}")
-        return None
+    # Busca na coluna NM_MUN (nome do município)
+    municipio_encontrado = None
+    for idx, row in gdf_goias.iterrows():
+        nome_shp = normalizar_nome(str(row['NM_MUN']))
+        if nome_normalizado == nome_shp:
+            municipio_encontrado = row
+            print(f"✅ Município encontrado: {row['NM_MUN']}")
+            break
     
-    print(f"📂 KML encontrado: {os.path.basename(kml_path)}")
+    if municipio_encontrado is None:
+        print(f"❌ ERRO: Município não encontrado no shapefile: {nome_municipio}")
+        print(f"   Tentando busca parcial...")
+        # Tenta busca parcial
+        for idx, row in gdf_goias.iterrows():
+            nome_shp = normalizar_nome(str(row['NM_MUN']))
+            if nome_normalizado in nome_shp or nome_shp in nome_normalizado:
+                municipio_encontrado = row
+                print(f"✅ Município encontrado (parcial): {row['NM_MUN']}")
+                break
+        
+        if municipio_encontrado is None:
+            return None
     
-    # Converte KML para GeoJSON
-    geojson = kml_para_geojson(kml_path)
-    
-    if geojson:
-        # Salva no cache em disco
-        try:
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(geojson, f, ensure_ascii=False)
-            print(f"✅ Polígono convertido e salvo: {nome_municipio}")
-        except Exception as e:
-            print(f"⚠️ Erro ao salvar cache: {str(e)}")
+    # Converte geometria para GeoJSON
+    try:
+        geometry = municipio_encontrado['geometry']
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "geometry": geometry.__geo_interface__,
+                "properties": {}
+            }]
+        }
         
         # Salva no cache em memória
         cache_poligonos[nome_municipio] = geojson
+        print(f"✅ Polígono convertido: {nome_municipio}")
         return geojson
-    else:
-        print(f"❌ ERRO: Não foi possível converter KML para GeoJSON: {nome_municipio}")
+        
+    except Exception as e:
+        print(f"❌ ERRO ao converter geometria: {str(e)}")
         return None
 
 def calcular_centroide(geojson):
@@ -192,8 +181,14 @@ def calcular_centroide(geojson):
         if not geojson or 'features' not in geojson or not geojson['features']:
             return None
         
-        # Pega o primeiro polígono
-        coords = geojson['features'][0]['geometry']['coordinates'][0]
+        # Pega a geometria
+        geometry = geojson['features'][0]['geometry']
+        
+        # Se for MultiPolygon, pega o primeiro polígono
+        if geometry['type'] == 'MultiPolygon':
+            coords = geometry['coordinates'][0][0]
+        else:  # Polygon
+            coords = geometry['coordinates'][0]
         
         # Calcula a média das coordenadas
         lons = [p[0] for p in coords]
@@ -212,7 +207,7 @@ cidades_selecionadas = {}
 
 @app.route('/')
 def index():
-    return render_template('index.html', cidades=sorted(CIDADES_BRASIL.keys()))
+    return render_template('index.html', cidades=sorted(MUNICIPIOS_GOIAS.keys()))
 
 @app.route('/adicionar_cidade', methods=['POST'])
 def adicionar_cidade():
@@ -220,7 +215,7 @@ def adicionar_cidade():
     cidade = data.get('cidade')
     cor = data.get('cor', '#FF0000')
     
-    if cidade in CIDADES_BRASIL:
+    if cidade in MUNICIPIOS_GOIAS:
         cidades_selecionadas[cidade] = cor
         return jsonify({"success": True, "message": f"{cidade} adicionada com sucesso!"})
     return jsonify({"success": False, "message": "Cidade não encontrada!"})
@@ -242,6 +237,9 @@ def limpar_todas():
 
 @app.route('/gerar_mapa')
 def gerar_mapa():
+    # Obtém parâmetro de exibição de pins
+    mostrar_pins = request.args.get('mostrar_pins', 'true').lower() == 'true'
+    
     # Cria o mapa centrado em Goiás
     mapa = folium.Map(
         location=[-16.0, -49.5],  # Centro de Goiás
@@ -253,11 +251,11 @@ def gerar_mapa():
     for cidade, cor in cidades_selecionadas.items():
         print(f"\n🎨 Processando: {cidade} (cor: {cor})")
         
-        if cidade not in CIDADES_BRASIL:
+        if cidade not in MUNICIPIOS_GOIAS:
             print(f"⚠️ {cidade} não encontrada no banco de dados")
             continue
         
-        info = CIDADES_BRASIL[cidade]
+        info = MUNICIPIOS_GOIAS[cidade]
         populacao = info.get('populacao', 0)
         codigo_ibge = info.get('codigo_ibge', '')
         
@@ -308,31 +306,34 @@ def gerar_mapa():
             
             print(f"   ✅ Polígono adicionado ao mapa")
             
-            # Adiciona um marcador no centro do município (usando centroide do polígono)
-            folium.Marker(
-                location=[lat_marcador, lon_marcador],
-                popup=folium.Popup(
-                    f"""
-                    <div style="font-family: Arial; text-align: center;">
-                        <h4 style="margin: 0 0 10px 0; color: {cor};">{cidade}</h4>
-                        <p style="margin: 5px 0;">População: {populacao:,}</p>
-                    </div>
-                    """,
-                    max_width=200
-                ),
-                tooltip=cidade,
-                icon=folium.Icon(
-                    color='red' if cor in ['#FF0000', '#DC143C', '#8B0000', '#FF6B6B'] else 
-                          'blue' if cor in ['#0000FF', '#1E90FF', '#4169E1', '#4A90E2'] else 
-                          'green' if cor in ['#008000', '#00FF00', '#32CD32', '#50C878'] else 
-                          'orange' if cor in ['#FFA500', '#FF8C00', '#FF4500', '#FFB347'] else
-                          'purple' if cor in ['#800080', '#9370DB', '#BA55D3'] else
-                          'darkblue',
-                    icon='info-sign'
-                )
-            ).add_to(mapa)
-            
-            print(f"   ✅ Marcador adicionado ao mapa")
+            # Adiciona um marcador no centro do município (usando centroide do polígono) se a opção estiver ativada
+            if mostrar_pins:
+                folium.Marker(
+                    location=[lat_marcador, lon_marcador],
+                    popup=folium.Popup(
+                        f"""
+                        <div style="font-family: Arial; text-align: center;">
+                            <h4 style="margin: 0 0 10px 0; color: {cor};">{cidade}</h4>
+                            <p style="margin: 5px 0;">População: {populacao:,}</p>
+                        </div>
+                        """,
+                        max_width=200
+                    ),
+                    tooltip=cidade,
+                    icon=folium.Icon(
+                        color='red' if cor in ['#FF0000', '#DC143C', '#8B0000', '#FF6B6B'] else 
+                              'blue' if cor in ['#0000FF', '#1E90FF', '#4169E1', '#4A90E2'] else 
+                              'green' if cor in ['#008000', '#00FF00', '#32CD32', '#50C878'] else 
+                              'orange' if cor in ['#FFA500', '#FF8C00', '#FF4500', '#FFB347'] else
+                              'purple' if cor in ['#800080', '#9370DB', '#BA55D3'] else
+                              'darkblue',
+                        icon='info-sign'
+                    )
+                ).add_to(mapa)
+                
+                print(f"   ✅ Marcador adicionado ao mapa")
+            else:
+                print(f"   ⏭️ Marcador desabilitado (opção desmarcada)")
         else:
             print(f"   ❌ GeoJSON não disponível, usando círculo")
             # Fallback: se não conseguir o polígono, usa um círculo
